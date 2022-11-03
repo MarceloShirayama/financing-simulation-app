@@ -1,4 +1,6 @@
-import currency from "currency.js";
+import crypto from "crypto";
+
+import { Input, SimulateLoan } from "@App/application/use-case/SimulateLoan";
 
 const purchasePrice = 250000;
 const downPayment = 50000;
@@ -7,70 +9,37 @@ const loanAmount = purchasePrice - downPayment;
 const loanRate = 1;
 const loanPeriod = 12;
 
-type LoanType = "price" | "sac";
+const inputPrice: Input = {
+  code: crypto.randomUUID(),
+  purchasePrice: 250000,
+  downPayment: 50000,
+  salary: 70000,
+  period: 12,
+  type: "price",
+};
+const inputSac: Input = {
+  code: crypto.randomUUID(),
+  purchasePrice: 250000,
+  downPayment: 50000,
+  salary: 70000,
+  period: 12,
+  type: "price",
+};
 
-function execute(loanType: LoanType) {
-  if (salary * 0.25 < loanAmount / loanPeriod) {
-    throw new Error("Insufficient salary.");
-  }
-
-  let balance = currency(loanAmount);
-  let rate = loanRate / 100;
-  let installmentNumber = 1;
-
-  if (loanType === "price") {
-    let formula = Math.pow(1 + rate, loanPeriod);
-    let amount = balance.multiply((formula * rate) / (formula - 1));
-
-    while (balance.value > 0) {
-      let interest = balance.multiply(rate);
-      let amortization = amount.subtract(interest);
-
-      balance = balance.subtract(amortization);
-
-      if (balance.value <= 0.05) balance = currency(0);
-
-      console.info(
-        installmentNumber,
-        amount.value,
-        interest.value,
-        amortization.value,
-        balance.value
-      );
-      installmentNumber++;
-    }
-  }
-
-  if (loanType === "sac") {
-    let amortization = currency(balance.value / loanPeriod);
-
-    while (balance.value > 0) {
-      let saldoInicial = currency(balance.value);
-      let interest = currency(saldoInicial.value * rate);
-      let updatedBalance = currency(saldoInicial.value + interest.value);
-      let amount = currency(interest.value + amortization.value);
-
-      balance = currency(updatedBalance.value - amount.value);
-
-      if (balance.value <= 0.05) balance = currency(0);
-
-      console.log(
-        installmentNumber,
-        amount.value,
-        interest.value,
-        amortization.value,
-        balance.value
-      );
-
-      installmentNumber++;
-    }
-  }
-}
+const simulateLoan = new SimulateLoan();
 
 console.log("price");
 console.log("InstallmentNumber Amount Amortization Balance");
-execute("price");
+const price = async () => {
+  const result = await simulateLoan.execute(inputPrice);
+  console.log(result);
+};
+console.log(price());
 
 console.log("sac");
 console.log("InstallmentNumber Amount Amortization Balance");
-execute("sac");
+const sac = async () => {
+  const simulate = await simulateLoan.execute(inputSac);
+  console.log(simulate);
+};
+console.log(sac());
