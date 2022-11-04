@@ -1,6 +1,6 @@
 import { Installment } from "./Installment";
 
-export class Loan {
+export abstract class AbstractLoan {
   constructor(
     readonly code: string,
     readonly amount: number,
@@ -8,9 +8,7 @@ export class Loan {
     readonly rate: number,
     readonly salary: number,
     readonly type: "price" | "sac"
-  ) {
-    if (salary * 0.25 < amount / period) {
-      throw new Error("Insufficient salary.");
-    }
-  }
+  ) {}
+
+  abstract generateInstallments(): Installment[];
 }

@@ -29,8 +29,9 @@ export class LoanDatabaseRepository {
     return new Loan(
       loadData.code,
       parseFloat(loadData.amount),
-      parseFloat(loadData.period),
-      parseFloat(loadData.rate),
+      loadData.period,
+      loadData.rate,
+      loadData.salary,
       loadData.type
     );
   }

@@ -1,7 +1,6 @@
 import { Installment } from "@App/domain/entities/Installment";
-import { InstallmentGeneratorPrice } from "@App/domain/entities/InstallmentGeneratorPrice";
-import { InstallmentGeneratorSac } from "@App/domain/entities/InstallmentGeneratorSac";
-import { InstallmentGeneratorFactory } from "@App/domain/factory/InstallmentGeneratorFactory";
+import { LoanPrice } from "@App/domain/entities/LoanPrice";
+import { LoanSac } from "@App/domain/entities/LoanSac";
 
 export type LoanType = "price" | "sac";
 
@@ -31,28 +30,29 @@ export class SimulateLoan {
   constructor() {}
 
   async execute(input: Input): Promise<Output> {
+    const { code, period, salary, type } = input;
+
     const output: Output = {
-      code: input.code,
+      code,
       installments: [],
     };
 
-    const loanAmount = input.purchasePrice - input.downPayment;
-    const loanPeriod = input.period;
-    const loanRate = 1;
-    const loanType = input.type;
+    const amount = input.purchasePrice - input.downPayment;
+    const rate = 1;
 
-    if (input.salary * 0.25 < loanAmount / loanPeriod) {
-      throw new Error("Insufficient salary.");
+    let installments: Installment[] = [];
+
+    if (type === "price") {
+      const loan = new LoanPrice(code, amount, period, rate, salary, type);
+
+      installments = loan.generateInstallments();
     }
 
-    const generatorInstallment = InstallmentGeneratorFactory.create(loanType);
+    if (type === "sac") {
+      const loan = new LoanSac(code, amount, period, rate, salary, type);
 
-    const installments = await generatorInstallment.generator(
-      input.code,
-      loanAmount,
-      loanPeriod,
-      loanRate
-    );
+      installments = loan.generateInstallments();
+    }
 
     for (const installment of installments) {
       output.installments.push({

@@ -12,32 +12,28 @@ export class RequestLoan {
   ) {}
 
   async execute(input: Input): Promise<void> {
-    const loanAmount = input.purchasePrice - input.downPayment;
-    const loanPeriod = input.period;
-    const loanRate = 1;
-    const loanType = input.type;
+    const { code, period, salary, type, purchasePrice, downPayment } = input;
+
+    const amount = purchasePrice - downPayment;
+    const rate = 1;
 
     await this.loanRepository.save(
-      new Loan(input.code, loanAmount, loanPeriod, loanRate, loanType)
+      new Loan(code, amount, period, rate, salary, type)
     );
 
-    if (input.salary * 0.25 < loanAmount / loanPeriod) {
-      throw new Error("Insufficient salary.");
-    }
-
-    const generatorInstallment = InstallmentGeneratorFactory.create(loanType);
+    const generatorInstallment = InstallmentGeneratorFactory.create(type);
 
     const installments = await generatorInstallment.generator(
-      input.code,
-      loanAmount,
-      loanPeriod,
-      loanRate
+      code,
+      amount,
+      period,
+      rate
     );
 
     for (const installment of installments) {
       await this.installmentRepository.save(
         new Installment(
-          input.code,
+          code,
           installment.number,
           installment.amount,
           installment.interest,
