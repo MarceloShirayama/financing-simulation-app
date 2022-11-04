@@ -1,33 +1,15 @@
 import currency from "currency.js";
+import pgPromise from "pg-promise";
 
-type LoanType = "price" | "sac";
+import { database } from "@App/config";
+import { Input, Output } from "./SimulateLoan";
 
-export type Input = {
-  code: string;
-  purchasePrice: number;
-  downPayment: number;
-  salary: number;
-  period: number;
-  type: LoanType;
-};
-
-export type Installments = {
-  installmentNumber: number;
-  amount: number;
-  interest: number;
-  amortization: number;
-  balance: number;
-};
-
-export type Output = {
-  code: string;
-  installments: Installments[];
-};
-
-export class SimulateLoan {
+export class RequestLoan {
   constructor() {}
 
-  async execute(input: Input): Promise<Output> {
+  async execute(input: Input): Promise<void> {
+    const connection = pgPromise()(database.uri);
+
     const output: Output = {
       code: input.code,
       installments: [],
@@ -37,6 +19,15 @@ export class SimulateLoan {
     const loanPeriod = input.period;
     const loanRate = 1;
     const loanType = input.type;
+
+    await connection.query(
+      `
+      INSERT INTO loan 
+      (code, amount, period, rate, type)
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+      [input.code, loanAmount, loanPeriod, loanRate, loanType]
+    );
 
     if (input.salary * 0.25 < loanAmount / loanPeriod) {
       throw new Error("Insufficient salary.");
@@ -58,13 +49,22 @@ export class SimulateLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        output.installments.push({
-          installmentNumber,
-          amount: amount.value,
-          interest: interest.value,
-          amortization: amortization.value,
-          balance: balance.value,
-        });
+        await connection.query(
+          `
+          INSERT INTO installment 
+          (loan_code, number, amount, interest, amortization, balance)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          `,
+          [
+            input.code,
+            installmentNumber,
+            amount.value,
+            interest.value,
+            amortization.value,
+            balance.value,
+          ]
+        );
+
         installmentNumber++;
       }
     }
@@ -82,18 +82,26 @@ export class SimulateLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        output.installments.push({
-          installmentNumber,
-          amount: amount.value,
-          interest: interest.value,
-          amortization: amortization.value,
-          balance: balance.value,
-        });
+        await connection.query(
+          `
+          INSERT INTO installment 
+          (loan_code, number, amount, interest, amortization, balance)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          `,
+          [
+            input.code,
+            installmentNumber,
+            amount.value,
+            interest.value,
+            amortization.value,
+            balance.value,
+          ]
+        );
 
         installmentNumber++;
       }
     }
 
-    return output;
+    connection.$pool.end();
   }
 }
