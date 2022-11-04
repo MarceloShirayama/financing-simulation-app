@@ -1,4 +1,7 @@
-import { Connection } from "@App/infra/database/Connection";
+import { Installment } from "@App/domain/entities/Installment";
+import { Loan } from "@App/domain/entities/Loan";
+import { InstallmentDatabaseRepository } from "@App/infra/database/repositories/InstallmentDatabaseRepository";
+import { LoanDatabaseRepository } from "@App/infra/database/repositories/LoanDatabaseRepository";
 import currency from "currency.js";
 
 import { Input, Output } from "./SimulateLoan";
@@ -7,25 +10,16 @@ export class RequestLoan {
   constructor() {}
 
   async execute(input: Input): Promise<void> {
-    const connection = new Connection();
-
-    const output: Output = {
-      code: input.code,
-      installments: [],
-    };
+    const loanDatabaseRepository = new LoanDatabaseRepository();
+    const installmentDatabaseRepository = new InstallmentDatabaseRepository();
 
     const loanAmount = input.purchasePrice - input.downPayment;
     const loanPeriod = input.period;
     const loanRate = 1;
     const loanType = input.type;
 
-    await connection.query(
-      `
-      INSERT INTO loan 
-      (code, amount, period, rate, type)
-      VALUES ($1, $2, $3, $4, $5)
-      `,
-      [input.code, loanAmount, loanPeriod, loanRate, loanType]
+    await loanDatabaseRepository.save(
+      new Loan(input.code, loanAmount, loanPeriod, loanRate, loanType)
     );
 
     if (input.salary * 0.25 < loanAmount / loanPeriod) {
@@ -48,20 +42,15 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await connection.query(
-          `
-          INSERT INTO installment 
-          (loan_code, number, amount, interest, amortization, balance)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          `,
-          [
+        await installmentDatabaseRepository.save(
+          new Installment(
             input.code,
             installmentNumber,
             amount.value,
             interest.value,
             amortization.value,
-            balance.value,
-          ]
+            balance.value
+          )
         );
 
         installmentNumber++;
@@ -81,26 +70,21 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await connection.query(
-          `
-          INSERT INTO installment 
-          (loan_code, number, amount, interest, amortization, balance)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          `,
-          [
+        await installmentDatabaseRepository.save(
+          new Installment(
             input.code,
             installmentNumber,
             amount.value,
             interest.value,
             amortization.value,
-            balance.value,
-          ]
+            balance.value
+          )
         );
 
         installmentNumber++;
       }
     }
 
-    connection.close();
+    // connection.close();
   }
 }
