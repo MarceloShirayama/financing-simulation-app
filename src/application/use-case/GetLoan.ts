@@ -1,48 +1,38 @@
+import { InstallmentDatabaseRepository } from "@App/infra/database/repositories/InstallmentDatabaseRepository";
+import { LoanDatabaseRepository } from "@App/infra/database/repositories/LoanDatabaseRepository";
 import { Output } from "./SimulateLoan";
-import { Connection } from "@App/infra/database/Connection";
 
 type Input = {
   code: string;
 };
 
 export class GetLoan {
-  constructor() {}
+  constructor(
+    readonly loanDatabaseRepository: LoanDatabaseRepository,
+    readonly installmentDatabaseRepository: InstallmentDatabaseRepository
+  ) {}
 
   async execute(input: Input): Promise<Output> {
-    const connection = new Connection();
+    const loan = await this.loanDatabaseRepository.get(input.code);
 
-    const [loadData] = await connection.query(
-      `
-      SELECT * FROM loan
-      WHERE code = $1
-      `,
-      [input.code]
-    );
-
-    const installmentsData = await connection.query(
-      `
-      SELECT * FROM installment
-      WHERE loan_code = $1
-      `,
-      [input.code]
+    const installments = await this.installmentDatabaseRepository.getByCode(
+      loan.code
     );
 
     const output: Output = {
-      code: loadData.code,
+      code: loan.code,
       installments: [],
     };
 
-    for (const installmentData of installmentsData) {
+    for (const installment of installments) {
       output.installments.push({
-        installmentNumber: installmentData.number,
-        amount: parseFloat(installmentData.amount),
-        interest: parseFloat(installmentData.interest),
-        amortization: parseFloat(installmentData.amortization),
-        balance: parseFloat(installmentData.balance),
+        installmentNumber: installment.number,
+        amount: installment.amount,
+        interest: installment.interest,
+        amortization: installment.amortization,
+        balance: installment.balance,
       });
     }
-
-    connection.close();
 
     return output;
   }

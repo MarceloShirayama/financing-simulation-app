@@ -1,13 +1,8 @@
 import { Installment } from "@App/domain/entities/Installment";
-import { Loan } from "@App/domain/entities/Loan";
 import { Connection } from "@App/infra/database/Connection";
 
 export class InstallmentDatabaseRepository {
-  connection: Connection;
-
-  constructor() {
-    this.connection = new Connection();
-  }
+  constructor(readonly connection: Connection) {}
 
   async save(installment: Installment) {
     await this.connection.query(
@@ -25,5 +20,32 @@ export class InstallmentDatabaseRepository {
         installment.balance,
       ]
     );
+  }
+
+  async getByCode(code: string): Promise<Installment[]> {
+    const installmentsData = await this.connection.query(
+      `
+      SELECT * FROM installment
+      WHERE loan_code = $1
+      `,
+      [code]
+    );
+
+    const installments: Installment[] = [];
+
+    for (const installmentData of installmentsData) {
+      installments.push(
+        new Installment(
+          installmentData.loan_code,
+          installmentData.number,
+          parseFloat(installmentData.amount),
+          parseFloat(installmentData.interest),
+          parseFloat(installmentData.amortization),
+          parseFloat(installmentData.balance)
+        )
+      );
+    }
+
+    return installments;
   }
 }

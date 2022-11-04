@@ -1,24 +1,24 @@
+import currency from "currency.js";
+
 import { Installment } from "@App/domain/entities/Installment";
 import { Loan } from "@App/domain/entities/Loan";
 import { InstallmentDatabaseRepository } from "@App/infra/database/repositories/InstallmentDatabaseRepository";
 import { LoanDatabaseRepository } from "@App/infra/database/repositories/LoanDatabaseRepository";
-import currency from "currency.js";
-
-import { Input, Output } from "./SimulateLoan";
+import { Input } from "./SimulateLoan";
 
 export class RequestLoan {
-  constructor() {}
+  constructor(
+    readonly loanDatabaseRepository: LoanDatabaseRepository,
+    readonly installmentDatabaseRepository: InstallmentDatabaseRepository
+  ) {}
 
   async execute(input: Input): Promise<void> {
-    const loanDatabaseRepository = new LoanDatabaseRepository();
-    const installmentDatabaseRepository = new InstallmentDatabaseRepository();
-
     const loanAmount = input.purchasePrice - input.downPayment;
     const loanPeriod = input.period;
     const loanRate = 1;
     const loanType = input.type;
 
-    await loanDatabaseRepository.save(
+    await this.loanDatabaseRepository.save(
       new Loan(input.code, loanAmount, loanPeriod, loanRate, loanType)
     );
 
@@ -42,7 +42,7 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await installmentDatabaseRepository.save(
+        await this.installmentDatabaseRepository.save(
           new Installment(
             input.code,
             installmentNumber,
@@ -70,7 +70,7 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await installmentDatabaseRepository.save(
+        await this.installmentDatabaseRepository.save(
           new Installment(
             input.code,
             installmentNumber,
@@ -84,7 +84,5 @@ export class RequestLoan {
         installmentNumber++;
       }
     }
-
-    // connection.close();
   }
 }

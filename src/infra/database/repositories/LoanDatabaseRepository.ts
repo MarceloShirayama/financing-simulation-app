@@ -2,11 +2,7 @@ import { Loan } from "@App/domain/entities/Loan";
 import { Connection } from "@App/infra/database/Connection";
 
 export class LoanDatabaseRepository {
-  connection: Connection;
-
-  constructor() {
-    this.connection = new Connection();
-  }
+  constructor(readonly connection: Connection) {}
 
   async save(loan: Loan) {
     await this.connection.query(
@@ -16,6 +12,26 @@ export class LoanDatabaseRepository {
       VALUES ($1, $2, $3, $4, $5)
       `,
       [loan.code, loan.amount, loan.period, loan.rate, loan.type]
+    );
+  }
+
+  async get(code: string) {
+    const [loadData] = await this.connection.query(
+      `
+      SELECT * FROM loan
+      WHERE code = $1
+      `,
+      [code]
+    );
+
+    if (!loadData) throw new Error("Loan not found!");
+
+    return new Loan(
+      loadData.code,
+      parseFloat(loadData.amount),
+      parseFloat(loadData.period),
+      parseFloat(loadData.rate),
+      loadData.type
     );
   }
 }
