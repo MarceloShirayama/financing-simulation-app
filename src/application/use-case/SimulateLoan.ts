@@ -1,6 +1,9 @@
-import currency from "currency.js";
+import { Installment } from "@App/domain/entities/Installment";
+import { InstallmentGeneratorPrice } from "@App/domain/entities/InstallmentGeneratorPrice";
+import { InstallmentGeneratorSac } from "@App/domain/entities/InstallmentGeneratorSac";
+import { InstallmentGeneratorFactory } from "@App/domain/factory/InstallmentGeneratorFactory";
 
-type LoanType = "price" | "sac";
+export type LoanType = "price" | "sac";
 
 export type Input = {
   code: string;
@@ -42,56 +45,23 @@ export class SimulateLoan {
       throw new Error("Insufficient salary.");
     }
 
-    let balance = currency(loanAmount);
-    let rate = loanRate / 100;
-    let installmentNumber = 1;
+    const generatorInstallment = InstallmentGeneratorFactory.create(loanType);
 
-    if (loanType === "price") {
-      let formula = Math.pow(1 + rate, loanPeriod);
-      let amount = balance.multiply((formula * rate) / (formula - 1));
+    const installments = await generatorInstallment.generator(
+      input.code,
+      loanAmount,
+      loanPeriod,
+      loanRate
+    );
 
-      while (balance.value > 0) {
-        let interest = balance.multiply(rate);
-        let amortization = amount.subtract(interest);
-
-        balance = balance.subtract(amortization);
-
-        if (balance.value <= 0.05) balance = currency(0);
-
-        output.installments.push({
-          installmentNumber,
-          amount: amount.value,
-          interest: interest.value,
-          amortization: amortization.value,
-          balance: balance.value,
-        });
-        installmentNumber++;
-      }
-    }
-
-    if (loanType === "sac") {
-      let amortization = currency(balance.value / loanPeriod);
-
-      while (balance.value > 0) {
-        let initialBalance = currency(balance.value);
-        let interest = currency(initialBalance.value * rate);
-        let updatedBalance = currency(initialBalance.value + interest.value);
-        let amount = currency(interest.value + amortization.value);
-
-        balance = currency(updatedBalance.value - amount.value);
-
-        if (balance.value <= 0.05) balance = currency(0);
-
-        output.installments.push({
-          installmentNumber,
-          amount: amount.value,
-          interest: interest.value,
-          amortization: amortization.value,
-          balance: balance.value,
-        });
-
-        installmentNumber++;
-      }
+    for (const installment of installments) {
+      output.installments.push({
+        installmentNumber: installment.number,
+        amount: installment.amount,
+        interest: installment.interest,
+        amortization: installment.amortization,
+        balance: installment.balance,
+      });
     }
 
     return output;

@@ -28,4 +28,30 @@ describe("SimulateLoan", () => {
     const lastInstallment = output.installments[output.installments.length - 1];
     expect(lastInstallment.balance).toBe(0);
   });
+
+  it("Should be able simulate a financing using the sac table", async () => {
+    // given | arrange
+    const simulateLoan = new SimulateLoan();
+
+    const input: Input = {
+      code: crypto.randomUUID(),
+      purchasePrice: 250000,
+      downPayment: 50000,
+      salary: 70000,
+      period: 12,
+      type: "sac",
+    };
+
+    // when | act
+    const output = await simulateLoan.execute(input);
+
+    // then | assert
+    expect(output.installments).toHaveLength(12);
+
+    const [firstInstallment] = output.installments;
+    expect(firstInstallment.balance).toBe(183333.33);
+
+    const lastInstallment = output.installments[output.installments.length - 1];
+    expect(lastInstallment.balance).toBe(0);
+  });
 });
