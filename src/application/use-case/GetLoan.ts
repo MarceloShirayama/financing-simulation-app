@@ -1,7 +1,5 @@
-import pgPromise from "pg-promise";
-
-import { configApp } from "@App/config";
 import { Output } from "./SimulateLoan";
+import { Connection } from "@App/infra/database/Connection";
 
 type Input = {
   code: string;
@@ -11,7 +9,7 @@ export class GetLoan {
   constructor() {}
 
   async execute(input: Input): Promise<Output> {
-    const connection = pgPromise()(configApp.database.uri);
+    const connection = new Connection();
 
     const [loadData] = await connection.query(
       `
@@ -44,7 +42,7 @@ export class GetLoan {
       });
     }
 
-    connection.$pool.end();
+    connection.close();
 
     return output;
   }

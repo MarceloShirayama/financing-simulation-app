@@ -1,14 +1,13 @@
+import { Connection } from "@App/infra/database/Connection";
 import currency from "currency.js";
-import pgPromise from "pg-promise";
 
-import { configApp } from "@App/config";
 import { Input, Output } from "./SimulateLoan";
 
 export class RequestLoan {
   constructor() {}
 
   async execute(input: Input): Promise<void> {
-    const connection = pgPromise()(configApp.database.uri);
+    const connection = new Connection();
 
     const output: Output = {
       code: input.code,
@@ -102,6 +101,6 @@ export class RequestLoan {
       }
     }
 
-    connection.$pool.end();
+    connection.close();
   }
 }
