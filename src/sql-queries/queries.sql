@@ -14,3 +14,12 @@ CREATE TABLE IF NOT EXISTS installment (
   amortization numeric,
   balance numeric
 );
+
+SELECT * FROM installment;
+
+SELECT * FROM loan;
+
+
+DELETE FROM installment;
+
+DELETE FROM loan;
