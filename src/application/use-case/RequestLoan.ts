@@ -1,15 +1,15 @@
 import currency from "currency.js";
 
+import { InstallmentRepository } from "@App/application/repositories/InstallmentRepository";
+import { LoanRepository } from "@App/application/repositories/LoanRepository";
 import { Installment } from "@App/domain/entities/Installment";
 import { Loan } from "@App/domain/entities/Loan";
-import { InstallmentDatabaseRepository } from "@App/infra/database/repositories/InstallmentDatabaseRepository";
-import { LoanDatabaseRepository } from "@App/infra/database/repositories/LoanDatabaseRepository";
 import { Input } from "./SimulateLoan";
 
 export class RequestLoan {
   constructor(
-    readonly loanDatabaseRepository: LoanDatabaseRepository,
-    readonly installmentDatabaseRepository: InstallmentDatabaseRepository
+    readonly loanRepository: LoanRepository,
+    readonly installmentRepository: InstallmentRepository
   ) {}
 
   async execute(input: Input): Promise<void> {
@@ -18,7 +18,7 @@ export class RequestLoan {
     const loanRate = 1;
     const loanType = input.type;
 
-    await this.loanDatabaseRepository.save(
+    await this.loanRepository.save(
       new Loan(input.code, loanAmount, loanPeriod, loanRate, loanType)
     );
 
@@ -42,7 +42,7 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await this.installmentDatabaseRepository.save(
+        await this.installmentRepository.save(
           new Installment(
             input.code,
             installmentNumber,
@@ -70,7 +70,7 @@ export class RequestLoan {
 
         if (balance.value <= 0.05) balance = currency(0);
 
-        await this.installmentDatabaseRepository.save(
+        await this.installmentRepository.save(
           new Installment(
             input.code,
             installmentNumber,
