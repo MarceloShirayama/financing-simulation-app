@@ -28,18 +28,20 @@ const inputSac: Input = {
 
 const simulateLoan = new SimulateLoan();
 
-console.log("price");
-console.log("InstallmentNumber Amount Amortization Balance");
 const price = async () => {
   const result = await simulateLoan.execute(inputPrice);
+  console.log("=".repeat(50));
+  console.log("Tabela Price");
   console.log(result);
+  console.log("=".repeat(50));
 };
-console.log(price());
+price();
 
-console.log("sac");
-console.log("InstallmentNumber Amount Amortization Balance");
 const sac = async () => {
   const simulate = await simulateLoan.execute(inputSac);
+  console.log("=".repeat(50));
+  console.log("Tabela SAC");
   console.log(simulate);
+  console.log("=".repeat(50));
 };
-console.log(sac());
+sac();
