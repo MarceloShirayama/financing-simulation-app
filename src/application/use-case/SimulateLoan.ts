@@ -1,3 +1,4 @@
+import { configApp } from "@App/config";
 import { Installment } from "@App/domain/entities/Installment";
 import { LoanPrice } from "@App/domain/entities/LoanPrice";
 import { LoanSac } from "@App/domain/entities/LoanSac";
@@ -39,7 +40,7 @@ export class SimulateLoan implements UseCase {
     };
 
     const amount = input.purchasePrice - input.downPayment;
-    const rate = 1;
+    const rate = configApp.financing.rate;
 
     let installments: Installment[] = [];
 
