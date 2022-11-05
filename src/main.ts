@@ -17,7 +17,7 @@ const inputSac: Input = {
   downPayment: 50000,
   salary: 70000,
   period: 12,
-  type: "price",
+  type: "sac",
 };
 
 const simulateLoan = new LogDecorator(new SimulateLoan());
