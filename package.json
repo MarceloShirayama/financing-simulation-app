@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "test": "jest --watch"
+    "test": "jest",
+    "test:watch": "npm test --  --watch",
+    "tes:ci": "npm test -- --coverage"
   },
   "keywords": [],
   "author": "",

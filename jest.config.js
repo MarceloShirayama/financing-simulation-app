@@ -6,4 +6,6 @@ module.exports = {
     "^@App/(.*)$": "<rootDir>/src/$1",
     "^lib/(.*)$": "<rootDir>/common/$1",
   },
+  coverageDirectory: "<rootDir>/coverage",
+  collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
 };
