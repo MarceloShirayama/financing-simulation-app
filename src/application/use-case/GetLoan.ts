@@ -1,5 +1,4 @@
-import { InstallmentRepository } from "@App/application/repositories/InstallmentRepository";
-import { LoanRepository } from "@App/application/repositories/LoanRepository";
+import { RepositoryAbstractFactory } from "../factory/RepositoryAbstractFactory";
 import { Output } from "./SimulateLoan";
 
 type Input = {
@@ -7,10 +6,14 @@ type Input = {
 };
 
 export class GetLoan {
-  constructor(
-    readonly loanRepository: LoanRepository,
-    readonly installmentRepository: InstallmentRepository
-  ) {}
+  loanRepository: any;
+  installmentRepository: any;
+
+  constructor(readonly repositoryFactory: RepositoryAbstractFactory) {
+    this.loanRepository = repositoryFactory.createLoanRepository();
+    this.installmentRepository =
+      repositoryFactory.createInstallmentRepository();
+  }
 
   async execute(input: Input): Promise<Output> {
     const loan = await this.loanRepository.get(input.code);

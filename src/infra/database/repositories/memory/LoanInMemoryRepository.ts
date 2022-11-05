@@ -3,9 +3,18 @@ import { Loan } from "@App/domain/entities/Loan";
 
 export class LoanInMemoryRepository implements LoanRepository {
   loans: Loan[];
+  static instance: LoanInMemoryRepository;
 
-  constructor() {
+  private constructor() {
     this.loans = [];
+  }
+
+  static getInstance() {
+    if (!LoanInMemoryRepository.instance) {
+      LoanInMemoryRepository.instance = new LoanInMemoryRepository();
+    }
+
+    return LoanInMemoryRepository.instance;
   }
 
   async save(loan: Loan): Promise<void> {

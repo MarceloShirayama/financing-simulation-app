@@ -3,13 +3,18 @@ import { LoanRepository } from "@App/application/repositories/LoanRepository";
 import { Installment } from "@App/domain/entities/Installment";
 import { Loan } from "@App/domain/entities/Loan";
 import { InstallmentGeneratorFactory } from "@App/domain/factory/InstallmentGeneratorFactory";
+import { RepositoryAbstractFactory } from "../factory/RepositoryAbstractFactory";
 import { Input } from "./SimulateLoan";
 
 export class RequestLoan {
-  constructor(
-    readonly loanRepository: LoanRepository,
-    readonly installmentRepository: InstallmentRepository
-  ) {}
+  loanRepository: LoanRepository;
+  installmentRepository: InstallmentRepository;
+
+  constructor(readonly repositoryFactory: RepositoryAbstractFactory) {
+    this.loanRepository = repositoryFactory.createLoanRepository();
+    this.installmentRepository =
+      repositoryFactory.createInstallmentRepository();
+  }
 
   async execute(input: Input): Promise<void> {
     const { code, period, salary, type, purchasePrice, downPayment } = input;

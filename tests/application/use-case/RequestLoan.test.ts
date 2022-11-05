@@ -5,28 +5,24 @@ import { RequestLoan } from "@App/application/use-case/RequestLoan";
 import { Input } from "@App/application/use-case/SimulateLoan";
 
 // Test in memory
-import { InstallmentInMemoryRepository } from "@App/infra/database/repositories/memory/InstallmentInMemoryRepository";
-import { LoanInMemoryRepository } from "@App/infra/database/repositories/memory/LoanInMemoryRepository";
+import { RepositoryMemoryFactory } from "@App/infra/factory/RepositoryMemoryFactory";
 
 // Test in database
 // import { PgPromiseConnection } from "@App/infra/database/PgPromiseConnection";
-// import { LoanDatabaseRepository } from "@App/infra/database/repositories/LoanDatabaseRepository";
-// import { InstallmentDatabaseRepository } from "@App/infra/database/repositories/InstallmentDatabaseRepository";
+// import { RepositoryDatabaseFactory } from "@App/infra/factory/RepositoryDatabaseFactory";
 
 describe("RequestLoan", () => {
   it("Should be able must apply in a financing using the price table ", async () => {
     const code = crypto.randomUUID();
 
     // Test in memory
-    const loanRepository = new LoanInMemoryRepository();
-    const installmentRepository = new InstallmentInMemoryRepository();
+    const repositoryFactory = new RepositoryMemoryFactory();
 
     // Test in database
     // const connection = new PgPromiseConnection();
-    // const loanRepository = new LoanDatabaseRepository(connection);
-    // const installmentRepository = new InstallmentDatabaseRepository(connection);
+    // const repositoryFactory = new RepositoryDatabaseFactory(connection);
 
-    const requestLoan = new RequestLoan(loanRepository, installmentRepository);
+    const requestLoan = new RequestLoan(repositoryFactory);
 
     const inputRequestLoan: Input = {
       code,
@@ -40,7 +36,7 @@ describe("RequestLoan", () => {
     // when | act
     await requestLoan.execute(inputRequestLoan);
 
-    const getLoan = new GetLoan(loanRepository, installmentRepository);
+    const getLoan = new GetLoan(repositoryFactory);
 
     const inputGetLoan = { code };
 
