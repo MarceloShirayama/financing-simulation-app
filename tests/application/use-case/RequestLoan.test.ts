@@ -6,6 +6,7 @@ import { Input } from "@App/application/use-case/SimulateLoan";
 
 // Test in memory
 import { RepositoryMemoryFactory } from "@App/infra/factory/RepositoryMemoryFactory";
+import { LogDecorator } from "@App/application/decorator/LogDecorator";
 
 // Test in database
 // import { PgPromiseConnection } from "@App/infra/database/PgPromiseConnection";
@@ -22,7 +23,7 @@ describe("RequestLoan", () => {
     // const connection = new PgPromiseConnection();
     // const repositoryFactory = new RepositoryDatabaseFactory(connection);
 
-    const requestLoan = new RequestLoan(repositoryFactory);
+    const requestLoan = new LogDecorator(new RequestLoan(repositoryFactory));
 
     const inputRequestLoan: Input = {
       code,
@@ -36,7 +37,7 @@ describe("RequestLoan", () => {
     // when | act
     await requestLoan.execute(inputRequestLoan);
 
-    const getLoan = new GetLoan(repositoryFactory);
+    const getLoan = new LogDecorator(new GetLoan(repositoryFactory));
 
     const inputGetLoan = { code };
 

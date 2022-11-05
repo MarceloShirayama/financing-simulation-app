@@ -1,11 +1,12 @@
 import { RepositoryAbstractFactory } from "../factory/RepositoryAbstractFactory";
 import { Output } from "./SimulateLoan";
+import { UseCase } from "./UseCase";
 
 type Input = {
   code: string;
 };
 
-export class GetLoan {
+export class GetLoan implements UseCase {
   loanRepository: any;
   installmentRepository: any;
 

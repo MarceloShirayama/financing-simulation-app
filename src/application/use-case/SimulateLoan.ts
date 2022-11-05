@@ -1,6 +1,7 @@
 import { Installment } from "@App/domain/entities/Installment";
 import { LoanPrice } from "@App/domain/entities/LoanPrice";
 import { LoanSac } from "@App/domain/entities/LoanSac";
+import { UseCase } from "./UseCase";
 
 export type LoanType = "price" | "sac";
 
@@ -26,7 +27,7 @@ export type Output = {
   installments: Installments[];
 };
 
-export class SimulateLoan {
+export class SimulateLoan implements UseCase {
   constructor() {}
 
   async execute(input: Input): Promise<Output> {

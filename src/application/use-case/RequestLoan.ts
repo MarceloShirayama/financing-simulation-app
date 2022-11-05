@@ -5,8 +5,9 @@ import { Loan } from "@App/domain/entities/Loan";
 import { InstallmentGeneratorFactory } from "@App/domain/factory/InstallmentGeneratorFactory";
 import { RepositoryAbstractFactory } from "../factory/RepositoryAbstractFactory";
 import { Input } from "./SimulateLoan";
+import { UseCase } from "./UseCase";
 
-export class RequestLoan {
+export class RequestLoan implements UseCase {
   loanRepository: LoanRepository;
   installmentRepository: InstallmentRepository;
 
