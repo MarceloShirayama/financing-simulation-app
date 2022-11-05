@@ -2,13 +2,6 @@ import crypto from "crypto";
 
 import { Input, SimulateLoan } from "@App/application/use-case/SimulateLoan";
 
-const purchasePrice = 250000;
-const downPayment = 50000;
-const salary = 70000;
-const loanAmount = purchasePrice - downPayment;
-const loanRate = 1;
-const loanPeriod = 12;
-
 const inputPrice: Input = {
   code: crypto.randomUUID(),
   purchasePrice: 250000,
