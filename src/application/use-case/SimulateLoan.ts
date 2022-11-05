@@ -28,7 +28,7 @@ export type Output = {
   installments: Installments[];
 };
 
-export class SimulateLoan implements UseCase {
+export class SimulateLoan implements UseCase<Input, Output> {
   constructor() {}
 
   async execute(input: Input): Promise<Output> {

@@ -8,7 +8,7 @@ import { RepositoryAbstractFactory } from "../factory/RepositoryAbstractFactory"
 import { Input } from "./SimulateLoan";
 import { UseCase } from "./UseCase";
 
-export class RequestLoan implements UseCase {
+export class RequestLoan implements UseCase<Input, void> {
   loanRepository: LoanRepository;
   installmentRepository: InstallmentRepository;
 

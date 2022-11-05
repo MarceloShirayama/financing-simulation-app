@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
 import { Input, SimulateLoan } from "@App/application/use-case/SimulateLoan";
+import { LogDecorator } from "./application/decorator/LogDecorator";
 
 const inputPrice: Input = {
   code: crypto.randomUUID(),
@@ -19,7 +20,7 @@ const inputSac: Input = {
   type: "price",
 };
 
-const simulateLoan = new SimulateLoan();
+const simulateLoan = new LogDecorator(new SimulateLoan());
 
 const price = async () => {
   const result = await simulateLoan.execute(inputPrice);

@@ -6,7 +6,7 @@ type Input = {
   code: string;
 };
 
-export class GetLoan implements UseCase {
+export class GetLoan implements UseCase<Input, Output> {
   loanRepository: any;
   installmentRepository: any;
 
